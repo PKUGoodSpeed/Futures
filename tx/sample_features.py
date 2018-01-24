@@ -30,6 +30,7 @@ from IPython.display import display
 
 ## Recording execution time
 import time
+import os
 
 ## Using multi threading 
 import multiprocessing
@@ -79,7 +80,7 @@ def _getRaw(symbol, colo, date):
     df.drop('a', axis=1, inplace=True)
     df.drop('b', axis=1, inplace=True)
     df.drop('time', axis=1, inplace=True)
-    df.to_csv("./data/tx.{0}.csv")
+    ## df.to_csv("./data/tx.{0}.csv".format(date), index=False)  ## We sample the data for the first time and store them
     return df
 def _getRawWrapper(args):
     ''' Wrapper for multithreading '''
@@ -197,6 +198,18 @@ class GetFeatures:
         print("Sampling finished!")
         print("Sampling time: " + str(time.time() - start_time) + " s")
     
+    def readRawData(self, path = './data'):
+        print("Start reading market data...")
+        start_time = time.time()
+        self._md_dfs = []
+        for date in self._dates:
+            filename = path + "/" + "tx.{0}.csv".format(date)
+            if os.path.exists(filename):
+                self._md_dfs.append(pd.read_csv(filename))
+        print("Reading data finished!")
+        print("Reading data time usage: " + str(time.time() - start_time) + " s")
+        
+    
     def _getBehaviors(self, mat):
         ''' Extracting other people's behavior '''
         print("Extracting other people's behaviors...")
@@ -302,7 +315,8 @@ if __name__ == '__main__':
     tick_size = 1.
     gf = GetFeatures(symbol=symbol, colo=colo, 
                     dates=dates, tick_size=tick_size)
-    gf.sampleRawData()
+    ## gf.sampleRawData()
+    gf.readRawData(path = './data')
     ## gf.test()
     df = gf.getTrainDataSet()
     print df.shape
