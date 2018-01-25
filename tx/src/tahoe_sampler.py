@@ -316,7 +316,7 @@ if __name__ == '__main__':
     gf = GetFeatures(symbol=symbol, colo=colo, 
                     dates=dates, tick_size=tick_size)
     ## gf.sampleRawData()
-    gf.readRawData(path = './data')
+    gf.readRawData(path = '../data')
     ## gf.test()
     df = gf.getTrainDataSet()
     print df.shape
