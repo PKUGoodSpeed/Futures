@@ -198,14 +198,16 @@ class GetFeatures:
         print("Sampling finished!")
         print("Sampling time: " + str(time.time() - start_time) + " s")
     
-    def readRawData(self, path = './data'):
+    def readRawData(self, path = '../data'):
         print("Start reading market data...")
         start_time = time.time()
         self._md_dfs = []
-        for date in self._dates:
-            filename = path + "/" + "tx.{0}.csv".format(date)
-            if os.path.exists(filename):
-                self._md_dfs.append(pd.read_csv(filename))
+        self._dates = []
+        for f in os.listdir(path):
+            filename = path + "/" + f
+            df = pd.read_csv(filename)
+            self._md_dfs.append(df)
+            self._dates.append(f.split('.')[1])
         print("Reading data finished!")
         print("Reading data time usage: " + str(time.time() - start_time) + " s")
         

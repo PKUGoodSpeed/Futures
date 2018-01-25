@@ -30,7 +30,7 @@ import os
 import multiprocessing
 import multiprocessing.pool
 
-NUM_THREADS = 1
+NUM_THREADS = 8
 class NoDaemonProcess(multiprocessing.Process):
     # make 'daemon' attribute always return False
     def _get_daemon(self):
@@ -145,14 +145,16 @@ class GetFeatures:
         self._dates = dates
         self._tick_size = tick_size
     
-    def readRawData(self, path = './data'):
+    def readRawData(self, path = '../data'):
         print("Start reading market data...")
         start_time = time.time()
         self._md_dfs = []
+        self._dates = []
         for f in os.listdir(path):
             filename = path + "/" + f
-	    df = pd.read_csv(filename)
+            df = pd.read_csv(filename)
             self._md_dfs.append(df)
+            self._dates.append(f.split('.')[1])
         print("Reading data finished!")
         print("Reading data time usage: " + str(time.time() - start_time) + " s")
         
