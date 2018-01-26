@@ -82,12 +82,12 @@ if __name__ == '__main__':
     emb_bid = Embedding(MAX_PRICE, 32)(bid)
     rnn_ask = GRU(16)(emb_ask)
     rnn_bid = GRU(16)(emb_bid)
-    fc_ask = Dropout(0.5) (Dense(64) (rnn_ask))
-    fc_bid = Dropout(0.5) (Dense(64) (rnn_bid))
+    fc_ask = Dropout(0.2) (Dense(64) (rnn_ask))
+    fc_bid = Dropout(0.2) (Dense(64) (rnn_bid))
     
     ## CNN part
     cnn_img = Conv2D(32, kernel_size = (3, 3), padding = 'same', activation='relu') (img)
-    cnn_img = Dropout(0.25)(cnn_img)
+    cnn_img = Dropout(0.1)(cnn_img)
     cnn_img = Conv2D(64, kernel_size = (3, 3), padding = 'same', activation='relu') (cnn_img)
     cnn_img = Dropout(0.25)(cnn_img)
     fc_img = Flatten()(cnn_img)
@@ -106,8 +106,8 @@ if __name__ == '__main__':
     model = Model([ask, bid, img], output)
     model.summary()
     
-    N_epoch = 2
-    learning_rate = 0.04
+    N_epoch = 120
+    learning_rate = 0.03
     decay_rate = 1./1.20
     optimizer = SGD(learning_rate)
     loss = 'categorical_crossentropy'
@@ -158,7 +158,5 @@ if __name__ == '__main__':
     
     plt.savefig('convrg_rst.png')
     
-    ## show model configuration
-    plot_model(model, to_file = 'model.png')
                     
     
