@@ -43,7 +43,7 @@ class MyPool(multiprocessing.pool.Pool):
     
 START_TIME = "09:00:00"
 END_TIME = "13:30:00"
-LOOK_BACK = 6
+LOOK_BACK = 10
 NUM_LEVELS = 10
 
 ''' ============= Extracting other people's behavior ============='''
