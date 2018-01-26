@@ -94,8 +94,8 @@ if __name__ == '__main__':
     
     ## Main layer
     main = concatenate([
-        #fc_ask,
-        #fc_bid,
+        fc_ask,
+        fc_bid,
         fc_img
     ])
     main = Dropout(0.25) (Dense(256) (main))
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     model.summary()
     
     N_epoch = 60
-    learning_rate = 0.03
+    learning_rate = 0.015
     decay_rate = 1./1.20
     optimizer = SGD(learning_rate)
     loss = 'categorical_crossentropy'
