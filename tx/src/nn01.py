@@ -65,7 +65,7 @@ if __name__ == '__main__':
     print df.shape
     
     dtrain, dvalid = train_test_split(df, random_state=17, train_size=0.7)
-    cls_wts = comp_cls_wts(dtrain.behav.values, pwr=0.5)
+    cls_wts = comp_cls_wts(dtrain.behav.values, pwr=0.4)
     print cls_wts
     
     tr = get_inout_data(dtrain)
