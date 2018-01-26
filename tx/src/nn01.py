@@ -94,8 +94,8 @@ if __name__ == '__main__':
     
     ## Main layer
     main = concatenate([
-        fc_ask,
-        fc_bid,
+        #fc_ask,
+        #fc_bid,
         fc_img
     ])
     main = Dropout(0.25) (Dense(256) (main))
