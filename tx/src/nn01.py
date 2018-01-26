@@ -82,16 +82,16 @@ if __name__ == '__main__':
     emb_bid = Embedding(MAX_PRICE, 32)(bid)
     rnn_ask = GRU(16)(emb_ask)
     rnn_bid = GRU(16)(emb_bid)
-    fc_ask = Dropout(0.2) (Dense(64) (rnn_ask))
-    fc_bid = Dropout(0.2) (Dense(64) (rnn_bid))
+    fc_ask = Dropout(0.1) (Dense(64) (rnn_ask))
+    fc_bid = Dropout(0.1) (Dense(64) (rnn_bid))
     
     ## CNN part
     cnn_img = Conv2D(32, kernel_size = (3, 3), padding = 'same', activation='relu') (img)
     cnn_img = Dropout(0.1)(cnn_img)
     cnn_img = Conv2D(64, kernel_size = (3, 3), padding = 'same', activation='relu') (cnn_img)
-    cnn_img = Dropout(0.25)(cnn_img)
+    cnn_img = Dropout(0.1)(cnn_img)
     fc_img = Flatten()(cnn_img)
-    fc_img = Dropout(0.5) (Dense(128) (fc_img))
+    fc_img = Dropout(0.1) (Dense(128) (fc_img))
     
     ## Main layer
     main = concatenate([
@@ -99,7 +99,7 @@ if __name__ == '__main__':
         fc_bid,
         fc_img
     ])
-    main = Dropout(0.5) (Dense(128) (main))
+    main = Dropout(0.25) (Dense(128) (main))
     main = Dropout(0.5) (Dense(32) (main))
     output = Dense(9, activation="softmax") (main)
     
