@@ -98,8 +98,8 @@ if __name__ == '__main__':
         fc_bid,
         fc_img
     ])
-    main = Dropout(0.25) (Dense(256) (main))
-    main = Dropout(0.5) (Dense(48) (main))
+    main = Dropout(0.12) (Dense(256) (main))
+    main = Dropout(0.25) (Dense(48) (main))
     output = Dense(9, activation="softmax") (main)
     
     model = Model([ask, bid, img], output)
