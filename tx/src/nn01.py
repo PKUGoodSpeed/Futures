@@ -106,7 +106,7 @@ if __name__ == '__main__':
     model = Model([ask, bid, img], output)
     model.summary()
     
-    N_epoch = 120
+    N_epoch = 60
     learning_rate = 0.03
     decay_rate = 1./1.20
     optimizer = SGD(learning_rate)
