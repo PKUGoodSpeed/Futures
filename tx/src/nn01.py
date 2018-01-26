@@ -87,16 +87,15 @@ if __name__ == '__main__':
     
     ## CNN part
     cnn_img = Conv2D(32, kernel_size = (3, 3), padding = 'same', activation='relu') (img)
-    cnn_img = Dropout(0.1)(cnn_img)
+    # cnn_img = Dropout(0.1)(cnn_img)
     cnn_img = Conv2D(64, kernel_size = (3, 3), padding = 'same', activation='relu') (cnn_img)
-    cnn_img = Dropout(0.1)(cnn_img)
+    # cnn_img = Dropout(0.1)(cnn_img)
     fc_img = Flatten()(cnn_img)
-    fc_img = Dropout(0.1) (Dense(128) (fc_img))
     
     ## Main layer
     main = concatenate([
-        #fc_ask,
-        #fc_bid,
+        fc_ask,
+        fc_bid,
         fc_img
     ])
     main = Dropout(0.25) (Dense(256) (main))
