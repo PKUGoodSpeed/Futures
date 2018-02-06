@@ -16,6 +16,7 @@ from sklearn.cross_validation import train_test_split
 ## Keras
 from keras.layers import Input, Dropout, Dense, BatchNormalization, Activation, concatenate, GRU, Embedding, Flatten
 from keras.layers import Flatten, Conv2D, MaxPooling2D
+from keras.layers import GlobalMaxPooling2D, GlobalAveragePooling2D, AveragePooling2D
 from keras.models import Model, Sequential
 from keras.callbacks import ModelCheckpoint, Callback, EarlyStopping#, TensorBoard
 from keras import backend as K
@@ -33,6 +34,7 @@ mpl.rcParams['xtick.major.size'] = 5
 mpl.rcParams['xtick.minor.size'] = 2
 mpl.rcParams['ytick.major.size'] = 5
 mpl.rcParams['ytick.minor.size'] = 2
+plt.switch_backend('agg')
 
 # Function to compute class weights
 def comp_cls_wts(y, pwr = 0.5):
@@ -64,6 +66,7 @@ if __name__ == '__main__':
     df = gf.getTrainDataSet()
     print df.shape
     
+    df, _ = train_test_split(df, random_state=17, train_size=0.3)
     dtrain, dvalid = train_test_split(df, random_state=17, train_size=0.7)
     cls_wts = comp_cls_wts(dtrain.behav.values, pwr=0.4)
     print cls_wts
@@ -80,17 +83,18 @@ if __name__ == '__main__':
     ## RNN part
     emb_ask = Embedding(MAX_PRICE, 64)(ask)
     emb_bid = Embedding(MAX_PRICE, 64)(bid)
-    rnn_ask = GRU(32)(emb_ask)
-    rnn_bid = GRU(32)(emb_bid)
-    fc_ask = Dropout(0.1) (Dense(128) (rnn_ask))
-    fc_bid = Dropout(0.1) (Dense(128) (rnn_bid))
+    rnn_ask = GRU(32, return_sequences=False, recurrent_dropout=0.1, dropout=0.1)(emb_ask)
+    rnn_bid = GRU(32, return_sequences=False, recurrent_dropout=0.1, dropout=0.1)(emb_bid)
+    fc_ask = Dropout(0.1) (Dense(32) (rnn_ask))
+    fc_bid = Dropout(0.1) (Dense(32) (rnn_bid))
     
     ## CNN part
     cnn_img = Conv2D(32, kernel_size = (3, 3), padding = 'same', activation='relu') (img)
-    # cnn_img = Dropout(0.1)(cnn_img)
-    cnn_img = Conv2D(64, kernel_size = (3, 3), padding = 'same', activation='relu') (cnn_img)
-    # cnn_img = Dropout(0.1)(cnn_img)
-    fc_img = Flatten()(cnn_img)
+    cnn_img = MaxPooling2D(pool_size = (2, 2)) (cnn_img)
+    cnn_img = Dropout(0.12) (cnn_img)
+    cnn_img = Conv2D(64, kernel_size = (2, 2), padding = 'same', activation='relu') (cnn_img)
+    cnn_img = Dropout(0.25) (cnn_img)
+    fc_img = GlobalMaxPooling2D() (cnn_img)
     
     ## Main layer
     main = concatenate([
@@ -98,16 +102,16 @@ if __name__ == '__main__':
         fc_bid,
         fc_img
     ])
-    main = Dropout(0.12) (Dense(256) (main))
-    main = Dropout(0.25) (Dense(48) (main))
+    main = Dropout(0.25) (Dense(128) (main))
+    main = Dropout(0.25) (Dense(32) (main))
     output = Dense(9, activation="softmax") (main)
     
     model = Model([ask, bid, img], output)
     model.summary()
     
-    N_epoch = 60
-    learning_rate = 0.015
-    decay_rate = 1./1.20
+    N_epoch = 150
+    learning_rate = 0.03
+    decay_rate = 0.85
     optimizer = SGD(learning_rate)
     loss = 'categorical_crossentropy'
     metrics = ['accuracy']

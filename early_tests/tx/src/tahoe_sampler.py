@@ -36,7 +36,7 @@ import os
 import multiprocessing
 import multiprocessing.pool
 
-NUM_THREADS = 8
+NUM_THREADS = 16
 class NoDaemonProcess(multiprocessing.Process):
     # make 'daemon' attribute always return False
     def _get_daemon(self):
@@ -49,8 +49,8 @@ class MyPool(multiprocessing.pool.Pool):
     
 START_TIME = "09:00:00"
 END_TIME = "13:30:00"
-LOOK_BACK = 6
-NUM_LEVELS = 10
+LOOK_BACK = 32
+NUM_LEVELS = 16
 
 ''' ===================== Sampling Raw data ====================='''
 def _getRaw(symbol, colo, date):
@@ -133,8 +133,8 @@ def _getLabelsWrapper(args):
 def _getImage(vecs):
     assert len(vecs) == LOOK_BACK
     img = np.zeros((LOOK_BACK, NUM_LEVELS, 4))
-    ask_base = int(vecs[5][0] - int(NUM_LEVELS/2))
-    bid_base = int(vecs[5][4] - int(NUM_LEVELS/2) + 1)
+    ask_base = int(vecs[LOOK_BACK-1][0] - int(NUM_LEVELS/2))
+    bid_base = int(vecs[LOOK_BACK-1][4] - int((NUM_LEVELS-1)/2))
     for i in range(LOOK_BACK):
         l = vecs[i][0] - ask_base
         if l>=0 and l<NUM_LEVELS:
@@ -176,7 +176,7 @@ class GetFeatures:
     _colo = None
     _tick_size = None
     _md_dfs = None     ## A list of dataFrame
-    _cutoff = 20
+    _cutoff = 300
     
     def __init__(self, symbol, colo, dates, tick_size):
         ''' No need explain '''
@@ -215,7 +215,7 @@ class GetFeatures:
     def _getBehaviors(self, mat):
         ''' Extracting other people's behavior '''
         print("Extracting other people's behaviors...")
-        args = [(mat[i+6], mat[i+7]) for i in range(len(mat) - self._cutoff)]
+        args = [(mat[i+LOOK_BACK], mat[i+LOOK_BACK+1]) for i in range(len(mat) - self._cutoff)]
         start_time = time.time()
         pool = MyPool(NUM_THREADS)
         targets = pool.map(_getLabelsWrapper, args)
@@ -228,9 +228,9 @@ class GetFeatures:
     def _getImageFeature(self, mat):
         ''' Extracting image features '''
         print("Extracting image features...")
-        args = [np.array(mat[i:i+6]) for i in range(len(mat) - self._cutoff)]
+        args = [np.array(mat[i:i+LOOK_BACK]) for i in range(len(mat) - self._cutoff)]
         for arg in args:
-            assert arg.shape == (6, 11)
+            assert arg.shape == (LOOK_BACK, 11)
         start_time = time.time()
         pool = MyPool(NUM_THREADS)
         imgs = np.array(pool.map(_getImage, args))
@@ -244,7 +244,7 @@ class GetFeatures:
     def _getRnnFeature(self, mat):
         ''' Extracting Rnn features '''
         print("Extracting Rnn features...")
-        args = [np.array(mat[i:i+6]) for i in range(len(mat) - self._cutoff)]
+        args = [np.array(mat[i:i+LOOK_BACK]) for i in range(len(mat) - self._cutoff)]
         start_time = time.time()
         pool = MyPool(NUM_THREADS)
         asks = np.array(pool.map(_getRnnAskPrice, args))
@@ -322,5 +322,6 @@ if __name__ == '__main__':
     ## gf.test()
     df = gf.getTrainDataSet()
     print df.shape
-    display(df[:6])
+    for tag in df.columns:
+        print tag, np.array(df[tag].tolist()).shape
         
